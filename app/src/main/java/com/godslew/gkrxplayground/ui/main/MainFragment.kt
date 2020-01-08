@@ -39,22 +39,27 @@ class MainFragment : DaggerFragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
         button.setOnClickListener {
-            gitHubClient.getUser("godslew")
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .bindTo { Log.d("Main", "snake00 $it") }
-                .addTo(disposable)
-
-            gitHubClient.getRepos("godslew")
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .bindTo { it.forEach {  repo -> Log.d("Main", "snake00 ${repo.name}")} }
-                .addTo(disposable)
+            viewModel.createSingle()
+            //github()
 
         }
-        viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
-        // TODO: Use the ViewModel
+    }
+
+    fun github() {
+        gitHubClient.getUser("godslew") // API
+            .observeOn(AndroidSchedulers.mainThread()) // 結果を受け取るスレッド
+            .subscribeOn(Schedulers.io()) // 購読するスレッド
+            .subscribe{ u -> Log.d("Main", "snake00 $u") }  //購読開始
+            //.bindTo { Log.d("Main", "snake00 $it") } //購読開始
+            .addTo(disposable) // dispose管理
+
+        gitHubClient.getRepos("godslew")
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeOn(Schedulers.io())
+            .bindTo { it.forEach {  repo -> Log.d("Main", "snake00 ${repo.name}")} }
+            .addTo(disposable)
     }
 
 }
